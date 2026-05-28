@@ -10,6 +10,8 @@ import { Task } from '../models/task.model';
 export class HomePage {
   //Arreglo de tareas
 
+  newTaskStr: string = '';
+
   tasks: Task[] = [
     {
       id: 1,
@@ -26,11 +28,41 @@ export class HomePage {
       prioridad: 'Alta',
     },
   ];
+
   constructor() {
     console.log(this.tasks);
   }
 
-  saludar() {
-    console.log('Este es mi primer botón');
+  addTask(): void {
+    if (!this.newTaskStr.trim()) {
+      console.log("No pusiste nada");
+      return;
+    }
+
+    if (
+      this.tasks.find(
+        (t) => t.titulo.toLowerCase() == this.newTaskStr.toLowerCase(),
+      )
+    ) {
+      console.log('Ya existe esa tarea');
+      return;
+    }
+
+    this.newTaskStr = this.newTaskStr.trim();
+
+    console.log(this.newTaskStr);
+
+    const newTask: Task = {
+      id: Date.now(),
+      titulo: this.newTaskStr,
+      descripcion: '',
+      finalizado: false,
+      prioridad: 'Media',
+    };
+
+    this.tasks.push(newTask);
+    console.log(this.tasks);
+
+    this.newTaskStr = "";
   }
 }
