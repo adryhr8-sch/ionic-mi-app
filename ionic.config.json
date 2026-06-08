@@ -1,5 +1,5 @@
 {
   "name": "miApp",
   "integrations": {},
-  "type": "angular"
+  "type": "angular-standalone"
 }
