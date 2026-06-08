@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import Task from '../models/task.model';
+import Task from '../../models/task.model';
+import { addIcons } from 'ionicons';
+import { addOutline, addCircleOutline } from 'ionicons/icons'
 
 @Component({
   selector: 'app-home',
@@ -30,6 +32,9 @@ export class HomePage {
   ];
 
   constructor() {
+    addIcons({
+      addCircleOutline
+    });
     console.log(this.tasks);
   }
 
