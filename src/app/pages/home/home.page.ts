@@ -1,18 +1,11 @@
-import { Component } from '@angular/core';
-import Task from '../../models/task.model';
-import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonInput,
-  IonItem,
-  IonButton,
-  IonIcon,
-} from '@ionic/angular/standalone'
+import { Component, inject } from '@angular/core';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonIcon, IonList, IonLabel, IonItemSliding, IonItemOptions, IonItemOption, IonReorderGroup, IonReorder } from '@ionic/angular/standalone'
 import { addIcons } from 'ionicons';
-import { addOutline } from 'ionicons/icons'
+import { addOutline, trashOutline } from 'ionicons/icons'
 import { FormsModule } from '@angular/forms';
+import { Alert } from '../../alert';
+import { ReorderEndCustomEvent } from '@ionic/angular/standalone';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-home',
@@ -28,67 +21,81 @@ import { FormsModule } from '@angular/forms';
     IonButton,
     IonIcon,
     FormsModule,
-  ]
+    IonList,
+    IonLabel,
+    IonItemSliding,
+    IonItemOptions,
+    IonItemOption,
+    IonReorderGroup,
+    IonReorder
+]
 })
 export class HomePage {
-  //Arreglo de tareas
+  public task: string = "";
+  public tasks: string[] = [];
+  private readonly KEY_TASK = 'local_key_task';
 
-  newTaskStr: string = '';
-
-  tasks: Task[] = [
-    {
-      id: 1,
-      titulo: 'Configuración de ionic',
-      descripcion: 'Instalar Node.js, AngularCli, IonicCli',
-      finalizado: true,
-      prioridad: 'Alta',
-    },
-    {
-      id: 2,
-      titulo: 'Crear app tasklist',
-      descripcion: 'Crear el proyecto inicial de task list',
-      finalizado: false,
-      prioridad: 'Alta',
-    },
-  ];
+  public alertService: Alert = inject(Alert);
 
   constructor() {
     addIcons({
-      addOutline
+      addOutline,
+      trashOutline,
     });
-    console.log(this.tasks);
   }
 
-  addTask(): void {
-    if (!this.newTaskStr.trim()) {
-      console.log("No pusiste nada");
-      return;
-    }
+  issame() {
+    return this.tasks.map((t) => t.toLowerCase()).includes(this.task.toLowerCase());
+  }
 
-    if (
-      this.tasks.find(
-        (t) => t.titulo.toLowerCase() == this.newTaskStr.toLowerCase(),
-      )
-    ) {
-      console.log('Ya existe esa tarea');
-      return;
-    }
-
-    this.newTaskStr = this.newTaskStr.trim();
-
-    console.log(this.newTaskStr);
-
-    const newTask: Task = {
-      id: Date.now(),
-      titulo: this.newTaskStr,
-      descripcion: '',
-      finalizado: false,
-      prioridad: 'Media',
-    };
-
-    this.tasks.push(newTask);
+  addTask() {
+    this.tasks.push(this.task);
     console.log(this.tasks);
+    this.alertService.showAlert('Éxito', 'Tarea agregada');
+    this.task = "";
+    this.saveTaskOnLocal();
+  }
 
-    this.newTaskStr = "";
+  confirmDelete(task: string) {
+    console.log(`Confirmación para borrar task: ${task}`);
+    this.alertService.confirmAlert(
+      'Aviso',
+      `Desea borrar la tarea ${task}`,
+      'SI',
+      'NO',
+      () => this.deleteTask(task),
+    )
+  }
+
+  private deleteTask(taskRemove: string) {
+    let index = this.tasks.findIndex(task => task === taskRemove);
+    this.tasks.splice(index, 1);
+    this.saveTaskOnLocal();
+  }
+
+  actualizarPosiciones(event: ReorderEndCustomEvent) {
+    console.log("El arreglo antes del cambio:", this.tasks);
+    this.tasks = event.detail.complete(this.tasks);
+    console.log("El arreglo después del cambio:", this.tasks);
+  }
+
+  async ionViewWillEnter() {
+    const taskPreferences = await Preferences.get({key: this.KEY_TASK});
+
+    if (taskPreferences.value) {
+      const tasks = JSON.parse(taskPreferences.value);
+      if (Array.isArray(tasks)) {
+        this.tasks = tasks;
+      }
+    }
+  }
+
+  saveTaskOnLocal() {
+    Preferences.set(
+      {
+        key: this.KEY_TASK,
+        value: JSON.stringify(this.tasks),
+      }
+    );
   }
 }

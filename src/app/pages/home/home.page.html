@@ -13,7 +13,41 @@ Matrícula: 23030020
 
 <ion-content [fullscreen]="true">
   <ion-item>
-    <ion-input type="text" placeholder="Ingresa una nueva tarea..." name="task" [(ngModel)]="newTaskStr"/>
-    <ion-button (click)="addTask()"><ion-icon name="add-outline" /></ion-button>
+    <ion-input type="text" placeholder="Ingresa una nueva tarea..." name="task" [(ngModel)]="task"/>
+    <ion-button (click)="addTask()" [disabled]="!task || issame()">
+      <ion-icon name="add-outline" />
+    </ion-button>
   </ion-item>
+
+  @if (tasks.length) {
+    <ion-list>
+      <ion-reorder-group [disabled]="false" (ionReorderEnd)="actualizarPosiciones($event)">
+        @for (task of tasks; track task) {
+          <ion-item-sliding>
+
+            <ion-item>
+              <ion-label>{{ task }}</ion-label>
+              <ion-reorder />
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option color="danger">
+                <ion-icon
+                  name="trash-outline"
+                  slot="icon-only"
+                  (click)="confirmDelete(task)"
+                />
+              </ion-item-option>
+            </ion-item-options>
+
+          </ion-item-sliding>
+        }
+      </ion-reorder-group>
+    </ion-list>
+  } @else {
+    <ion-item lines="none" class="ion-text-center">
+      No hay tareas pendientes
+    </ion-item>
+  }
+
 </ion-content>
