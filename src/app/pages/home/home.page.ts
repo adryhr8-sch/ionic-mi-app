@@ -1,13 +1,34 @@
 import { Component } from '@angular/core';
 import Task from '../../models/task.model';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonInput,
+  IonItem,
+  IonButton,
+  IonIcon,
+} from '@ionic/angular/standalone'
 import { addIcons } from 'ionicons';
-import { addCircleOutline } from 'ionicons/icons'
+import { addOutline } from 'ionicons/icons'
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  standalone: false,
+  imports: [
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonInput,
+    IonItem,
+    IonButton,
+    IonIcon,
+    FormsModule,
+  ]
 })
 export class HomePage {
   //Arreglo de tareas
@@ -33,7 +54,7 @@ export class HomePage {
 
   constructor() {
     addIcons({
-      addCircleOutline
+      addOutline
     });
     console.log(this.tasks);
   }
